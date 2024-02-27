@@ -1,11 +1,11 @@
 "use client";
 
-import React from "react";
+import React, {useEffect} from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { TextInput } from "@/components/inputs/textInput";
-import { getUserByCredentials } from "@/pocketbase/users";
+import {deleteCookie, getUserByCredentials} from "@/pocketbase/users";
 import { PrimaryContainedButton } from "@/components/buttons/contained-btns";
 import {
   loginFormSchema,
@@ -14,6 +14,7 @@ import {
 import { classNames } from "@/utils/tools";
 import { useRouter } from "next/navigation";
 import Background from "@/app/login/icon/background";
+import {cookies} from "next/headers";
 
 export default function Login() {
   const [error, setError] = React.useState<string>("");
@@ -35,7 +36,9 @@ export default function Login() {
       router.push("/panel");
     }
   };
-
+  useEffect(() => {
+    deleteCookie()
+  }, []);
   return (
     <main className="w-full h-screen flex justify-center items-center px-xs sm:px-0">
       <section className="shadow-card rounded-sm w-full sm:w-8/12 md:w-6/12 lg:w-5/12 xl:w-7/12  flex items-center">

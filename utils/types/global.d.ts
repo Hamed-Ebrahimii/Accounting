@@ -15,6 +15,14 @@ interface PocketbaseResponse<T> {
   totalPages: number;
   items: T[];
 }
+interface PocketbaseResponseOne<T> {
+  error?: string;
+  page: number;
+  perPage: number;
+  totalItems: number;
+  totalPages: number;
+  items: T;
+}
 interface ICompanies{
   collectionId: string;
   collectionName: string;
@@ -27,4 +35,13 @@ interface ICompanies{
   foundationDate : string,
   creator : string,
   employeesNumber : number
+}
+interface ILedger {
+  companyId : string,
+  title : string,
+  description : string,
+  credit : number,
+  debit : number
+  date : string,
+  id? : string
 }

@@ -59,7 +59,12 @@ const config: Config = {
         },
         dark : {
           800 : '#333333'
-        }
+        },
+        yellow : {
+          'light' : '#FEF3C7'
+        },
+        warning : '#F59E0B',
+       success : '#059669'
       },
       boxShadow: {
         card: "0px 4px 4px 0px #00000040",

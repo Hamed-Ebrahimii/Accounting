@@ -5,35 +5,45 @@ import {OutlinePrimaryContainedButton, PrimaryContainedButton} from "@/component
 import {classNames} from "@/utils/tools";
 import React from "react";
 import {zodResolver} from "@hookform/resolvers/zod";
-import {authorization, createCompanies, createUser, editCompany, editUser} from "@/pocketbase/users";
-import {companyValidation} from "@/utils/validations/company-validation";
-import moment from "moment";
+import {createLedger, editLeger, } from "@/pocketbase/users";
+import {ledgerType, ledgerValidation} from "@/utils/validations/ledger-validation";
+import moment from "moment/moment";
+import {useParams} from "next/navigation";
 interface Iprops {
     setModule : (value: boolean) => void;
-    companies? : ICompanies,
-    editeMode? : boolean
+    ledger? : ILedger,
+    editeMode? : boolean,
+    companyID? : string
 }
-const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
+const ModuleLedger = ({setModule , editeMode , ledger , companyID} : Iprops) =>{
     const [error, setError] = React.useState<string>("");
     const [loading, setLoading] = React.useState<boolean>(false);
-    const { handleSubmit, control: FormControl  , reset} = useForm<ICompanies>({
-        resolver: zodResolver(companyValidation),
+    const { handleSubmit, control: FormControl  , reset} = useForm<ledgerType>({
+        resolver: zodResolver(ledgerValidation),
         defaultValues : {
-           employeesNumber : companies?.employeesNumber,
-            founder : companies?.founder,
-            location : companies?.location,
-            id : companies?.id,
-            name : companies?.name,
+           title : ledger?.title,
+           description : ledger?.description,
+           debit : ledger?.debit,
+           credit : ledger?.credit
         }
     });
-    const submitForm = async (data : ICompanies) =>{
+    const IdCompany = useParams()
+    const submitForm = async (data : ledgerType) =>{
         if (loading) return;
+        if (ledger?.description === data.description && ledger?.title === data.title && ledger?.credit === data.credit && ledger?.debit === data.debit){
+            setError('Please change your description or title or  credit or debit')
+            return
+        }
         setLoading(true)
-        const date = new Date()
-        data.foundationDate =  moment(date).format("YYYY-MM-DD hh:mm a")
-        const create = await authorization()
-        data.creator = create.data?.username || ''
-        const response = editeMode ? await editCompany(data , companies?.id || '' ):  await createCompanies(data)
+        const dataLedger : ILedger = {
+            title: data.title,
+            description: data.description,
+            credit: data.credit,
+            debit : data.debit,
+            companyId : companyID || '',
+            date : moment().format("YYYY-MM-DD hh:mm a")
+        }
+        const response = editeMode ? await editLeger(ledger?.id || '' , dataLedger): await createLedger(dataLedger)
         if (response.error){
             setError(response.error)
         }
@@ -41,13 +51,16 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
         setModule(false)
         location.reload()
     }
+    const handleReset = () =>{
+        reset()
+    }
     return(
         <div className={'fixed top-0 left-0 w-full h-screen bg-black bg-opacity-40  z-10 py-16'}>
             <div className={'bg-white rounded-lg py-8 px-10 w-4/12 mx-auto'}>
                 <div className={'w-full flex items-center justify-between'}>
                     <p className={'text-lg font-medium'}>
                         {
-                            editeMode ? 'Edit Companies' :   'New Companies'
+                            editeMode ? 'Edit Accountant' :   'New Accountant'
                         }
                     </p>
                     <button onClick={()=> setModule(false)}>
@@ -57,13 +70,13 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
                 <form onSubmit={handleSubmit(submitForm)} className="mt-lg">
                     <div className="space-y-md">
                         <Controller
-                            name="name"
+                            name="title"
                             control={FormControl}
                             render={({field, fieldState: {error}}) => (
                                 <TextInput
-                                    placeholder="Enter Company Name"
+                                    placeholder="Enter your title"
                                     error={error?.message}
-                                    labelTitle="Company Name"
+                                    labelTitle="Title"
                                     type="text"
                                     {...field}
                                 />
@@ -71,11 +84,11 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
                         />
                         <Controller
                             control={FormControl}
-                            name="location"
+                            name="description"
                             render={({field, fieldState: {error}}) => (
                                 <TextInput
-                                    placeholder="Enter your company Location"
-                                    labelTitle="Location"
+                                    placeholder="Enter your description"
+                                    labelTitle="Description"
                                     type="text"
                                     error={error?.message}
                                     {...field}
@@ -84,11 +97,11 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
                         />
                         <Controller
                             control={FormControl}
-                            name="employeesNumber"
+                            name="credit"
                             render={({field, fieldState: {error}}) => (
                                 <TextInput
-                                    placeholder="Enter your company employeesNumber"
-                                    labelTitle="employeesNumber"
+                                    placeholder="Enter your credit"
+                                    labelTitle="Credit"
                                     type="number"
                                     error={error?.message}
                                     {...field}
@@ -97,12 +110,12 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
                         />
                         <Controller
                             control={FormControl}
-                            name="founder"
+                            name="debit"
                             render={({field, fieldState: {error}}) => (
                                 <TextInput
-                                    placeholder="Enter your company founder"
-                                    labelTitle="founder"
-                                    type="text"
+                                    placeholder="Enter your debit"
+                                    labelTitle="Debit"
+                                    type="number"
                                     error={error?.message}
                                     {...field}
                                 />
@@ -116,10 +129,10 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
                             disabled={loading}
                         />
                         <OutlinePrimaryContainedButton
-                            type={'reset'}
+                            type={'button'}
                             title={<p
                                 className="font-semibold text-primary-700">Clear</p>}
-                            onClick={()=>reset()}
+                            onClick={()=>handleReset()}
                         />
 
                     </div>
@@ -138,4 +151,4 @@ const ModuleCompanies = ({setModule , editeMode , companies} : Iprops) =>{
     )
 }
 
-export default ModuleCompanies
+export default ModuleLedger

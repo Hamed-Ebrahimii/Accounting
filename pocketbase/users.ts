@@ -136,3 +136,46 @@ export const createCompanies = async (data : ICompanies) : Promise<IInternalApiR
   }
   return {error: 'forbidden error'}
 }
+export const editCompany = async (data : ICompanies , id : string) : Promise<IInternalApiResponse<boolean>> =>{
+  const client = await getClient()
+  const auth = await authorization()
+  if (auth.data){
+   await client.collection('companies').update(id , data)
+  return {data : true}
+  }
+  return {error: ''}
+}
+export const getCompany = async (id : string) : Promise<ICompanies> =>{
+  const client = await getClient()
+  return  await client.collection('companies').getOne(id)
+
+}
+export const  deleteCookie =  () =>{
+  "use server"
+  cookies().delete(process.env.sessionCookieKey as string)
+}
+export const getLedger = async (key: string , page = 1  , perPage =10) : Promise<PocketbaseResponse<ILedger>> =>{
+  const client = await getClient()
+    return await client.collection('ledgerRecords').getList(page , perPage , {
+      filter : `companyId="${key}"`
+    })
+}
+export const createLedger = async (data : ILedger) : Promise<IInternalApiResponse<boolean>> =>{
+  const client = await getClient()
+  try {
+    await client.collection('ledgerRecords').create(data)
+    return {data : true}
+  }catch (_){
+    return  {error : ''}
+  }
+
+}
+export const editLeger = async (id : string , data : ILedger) : Promise<IInternalApiResponse<boolean>> =>{
+  const client = await getClient()
+  try {
+  await client.collection('ledgerRecords').update(id, data)
+    return {data : true}
+  }catch (_){
+    return  {error : ''}
+  }
+}

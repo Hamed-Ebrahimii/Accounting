@@ -4,6 +4,7 @@ import {IoIosArrowBack, IoIosArrowForward} from "react-icons/io";
 import {ChangeEventHandler, useState} from "react";
 import {useQuery} from "@tanstack/react-query";
 import {getAllCompanies} from "@/pocketbase/users";
+import Link from "next/link";
 
 const Companies = () =>{
     const [page , setPage] = useState(1)
@@ -81,7 +82,9 @@ const Companies = () =>{
                                                 <button
                                                     className="text-primary-700 bg-primary-100 rounded-md py-2 px-4 hover:text-primary-800"
                                                 >
-                                                    Ledger
+                                                    <Link href={`/admin/companies/${companies.id}`}>
+                                                        Ledger
+                                                    </Link>
                                                 </button>
                                             </td>
                                         </tr>
