@@ -27,7 +27,7 @@ const Ledger = async ({params} : {params : {id : string}}) =>{
                      price={dataLedger.items?.map(item => item.credit)?.reduce((a: number, b: number) => a + b  , 0) - dataLedger.items.map(item => item.debit).reduce((a: number, b: number) => a + b , 0)}
                      finall={true}/>
             </div>
-            <LedgerList ledger={dataLedger} companyId={params.id}/>
+            <LedgerList isAdmine={false} ledger={dataLedger} companyId={params.id}/>
         </div>
     )
 }
